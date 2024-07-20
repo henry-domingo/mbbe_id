@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:mbbe_id/screen/scan_nfc_screen.dart';
+import 'package:mbbe_id/screen/write_nfc_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -112,6 +115,26 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
+            TextButton(onPressed: () {}, child: const Text('Generate QR')),
+            TextButton(onPressed: () {}, child: const Text('Scan QR')),
+            TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const WriteNfcScreen()),
+                  );
+                },
+                child: const Text('Write NFC')),
+            TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ScanNfcScreen()),
+                  );
+                },
+                child: const Text('Scan NFC')),
           ],
         ),
       ),
