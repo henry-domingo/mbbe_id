@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mbbe_id/screen/scan_nfc_screen.dart';
-import 'package:mbbe_id/screen/write_nfc_screen.dart';
+import 'package:mbbe_id/screen/scan_card_screen.dart';
+import 'package:mbbe_id/screen/write_card_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -122,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const WriteNfcScreen()),
+                        builder: (context) => const WriteCardScreen()),
                   );
                 },
                 child: const Text('Write NFC')),
@@ -131,7 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const ScanNfcScreen()),
+                        builder: (context) => const ScanCardScreen()),
                   );
                 },
                 child: const Text('Scan NFC')),

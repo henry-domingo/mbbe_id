@@ -6,28 +6,30 @@ import 'package:flutter/material.dart';
 import 'package:mbbe_id/model/id_nfc.dart';
 import 'package:mime/mime.dart';
 import 'package:nfc_manager/nfc_manager.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import '../helpers.dart';
 import 'capture_image_screen.dart';
 
-class WriteNfcScreen extends StatefulWidget {
-  const WriteNfcScreen({super.key});
+class WriteCardScreen extends StatefulWidget {
+  const WriteCardScreen({super.key});
 
   @override
-  State<WriteNfcScreen> createState() => _WriteNfcScreenState();
+  State<WriteCardScreen> createState() => _WriteCardScreenState();
 }
 
-class _WriteNfcScreenState extends State<WriteNfcScreen> {
+class _WriteCardScreenState extends State<WriteCardScreen> {
   var isAvailable = false;
   var isWriting = false;
-  var stringData = '';
+  var stringDataNFC = '';
+  var stringDataQR = '';
   var mimeImage = '';
 
   final _formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final congregationController = TextEditingController();
 
-  Uint8List? _imgCapturedBytes;
+  var _qrData = '';
 
   @override
   void initState() {
@@ -41,6 +43,10 @@ class _WriteNfcScreenState extends State<WriteNfcScreen> {
   }
 
   void _writeTag() {
+    final dataToBeWritten = encryptTextToBase64(stringDataNFC);
+    setState(() {
+      _qrData = encryptTextToBase64(stringDataQR);
+    });
     NfcManager.instance.startSession(
       onDiscovered: (NfcTag tag) async {
         if (!isWriting) return;
@@ -48,13 +54,15 @@ class _WriteNfcScreenState extends State<WriteNfcScreen> {
         Ndef? ndef = Ndef.from(tag);
         if (ndef != null && ndef.isWritable) {
           try {
-            await ndef.write(NdefMessage(
-                [NdefRecord.createText(encryptTextToBase64(stringData))]));
+            await ndef
+                .write(NdefMessage([NdefRecord.createText(dataToBeWritten)]));
           } catch (e) {
             NfcManager.instance.stopSession(errorMessage: e.toString());
           }
 
           setState(() {
+            nameController.text = '';
+            congregationController.text = '';
             isWriting = false;
           });
         }
@@ -98,30 +106,6 @@ class _WriteNfcScreenState extends State<WriteNfcScreen> {
                 return null;
               },
             ),
-            if (_imgCapturedBytes != null)
-              Image(image: Image.memory(_imgCapturedBytes!).image),
-            TextButton(
-                onPressed: () async {
-                  final cameras = await availableCameras();
-                  if (context.mounted) {
-                    //XFile
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => CaptureImageScreen(
-                                camera: cameras.first,
-                              )),
-                    );
-                    if (result != null && result is XFile) {
-                      final bytes = await result.readAsBytes();
-                      mimeImage = lookupMimeType(result.path) ?? 'image/jpeg';
-                      setState(() {
-                        _imgCapturedBytes = bytes;
-                      });
-                    }
-                  }
-                },
-                child: const Text('Take picture')),
             TextButton(
                 onPressed: () {
                   if (isWriting) {
@@ -130,24 +114,31 @@ class _WriteNfcScreenState extends State<WriteNfcScreen> {
                       isWriting = false;
                     });
                   } else {
-                    if (_imgCapturedBytes == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Photo is required!')));
-                    } else {
-                      if (_formKey.currentState!.validate()) {
-                        stringData = jsonEncode(IdNfc(
-                                name: nameController.text,
-                                congregation: congregationController.text)
-                            .toJson());
-                        setState(() {
-                          isWriting = true;
-                        });
-                        _writeTag();
-                      }
+                    if (_formKey.currentState!.validate()) {
+                      stringDataNFC = jsonEncode(IdNfc(
+                              name: nameController.text,
+                              congregation: congregationController.text,
+                              image: '')
+                          .toJson());
+                      stringDataQR = stringDataNFC;
+                      setState(() {
+                        isWriting = true;
+                        _qrData = '';
+                      });
+                      _writeTag();
                     }
                   }
                 },
-                child: Text(isWriting ? 'Cancel writing' : 'Write to NFC')),
+                child: Text(isWriting
+                    ? 'Cancel writing'
+                    : 'Write to NFC & Generate QR')),
+            const Text('QR'),
+            if (_qrData.isNotEmpty)
+              QrImageView(
+                data: _qrData,
+                version: QrVersions.auto,
+                size: 200.0,
+              ),
           ],
         ),
       ),
