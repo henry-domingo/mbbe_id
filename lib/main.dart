@@ -1,14 +1,39 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:mbbe_id/screen/login_screen.dart';
 import 'package:mbbe_id/screen/scan_card_screen.dart';
 import 'package:mbbe_id/screen/write_card_screen.dart';
 
-void main() {
+import 'firebase_options.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  User? _user;
+
+  @override
+  void initState() {
+    super.initState();
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      setState(() {
+        _user = user;
+      });
+    });
+  }
 
   // This widget is the root of your application.
   @override
@@ -34,7 +59,9 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: (_user != null)
+          ? const MyHomePage(title: 'Flutter Demo Home Page')
+          : const LoginScreen(),
     );
   }
 }
@@ -73,12 +100,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
         // TRY THIS: Try changing the color here to a specific color (to
@@ -108,6 +129,9 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Text(
+              'Hello ${FirebaseAuth.instance.currentUser!.email!}',
+            ),
             const Text(
               'You have pushed the button this many times:',
             ),
@@ -115,8 +139,6 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
-            TextButton(onPressed: () {}, child: const Text('Generate QR')),
-            TextButton(onPressed: () {}, child: const Text('Scan QR')),
             TextButton(
                 onPressed: () {
                   Navigator.push(
@@ -125,7 +147,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         builder: (context) => const WriteCardScreen()),
                   );
                 },
-                child: const Text('Write NFC')),
+                child: const Text('Write Card')),
             TextButton(
                 onPressed: () {
                   Navigator.push(
@@ -134,7 +156,12 @@ class _MyHomePageState extends State<MyHomePage> {
                         builder: (context) => const ScanCardScreen()),
                   );
                 },
-                child: const Text('Scan NFC')),
+                child: const Text('Scan Card')),
+            TextButton(
+                onPressed: () async {
+                  await FirebaseAuth.instance.signOut();
+                },
+                child: const Text('Logout')),
           ],
         ),
       ),
