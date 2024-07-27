@@ -8,6 +8,7 @@ class Member {
   final String?
       attributes; // inactive, invalid digital ID, validated, issued, etc.
   final IdDigital? digitalId;
+  final String? firebaseUserId;
 
   const Member({
     required this.name,
@@ -16,6 +17,7 @@ class Member {
     required this.congregation,
     this.attributes,
     this.digitalId,
+    this.firebaseUserId,
   });
 
   factory Member.fromMap(Map<String, dynamic> element) {
@@ -26,6 +28,7 @@ class Member {
       congregation: element['c'] as String,
       attributes: element['a'] as String,
       digitalId: IdDigital.fromMap(element['digitalId']),
+      firebaseUserId: element['fu'] as String,
     );
   }
 
@@ -36,5 +39,6 @@ class Member {
         'c': congregation,
         'a': attributes,
         'digitalId': digitalId,
+        'fu': firebaseUserId,
       };
 }
