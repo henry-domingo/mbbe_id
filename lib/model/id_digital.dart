@@ -1,3 +1,5 @@
+import 'package:firebase_database/firebase_database.dart';
+
 class IdDigital {
   final String photo; // TODO link to Cloud store
   final String signature; // TODO link to Cloud store
@@ -7,10 +9,10 @@ class IdDigital {
     required this.signature,
   });
 
-  factory IdDigital.fromMap(Map<String, dynamic> element) {
+  factory IdDigital.fromSnapshot(DataSnapshot snapshot) {
     return IdDigital(
-      photo: element['p'] as String,
-      signature: element['s'] as String,
+      photo: snapshot.child('p').value as String,
+      signature: snapshot.child('s').value as String,
     );
   }
 

@@ -1,3 +1,5 @@
+import 'package:firebase_database/firebase_database.dart';
+
 import 'id_digital.dart';
 
 class Member {
@@ -20,15 +22,17 @@ class Member {
     this.firebaseUserId,
   });
 
-  factory Member.fromMap(Map<String, dynamic> element) {
+  factory Member.fromSnapshot(DataSnapshot snapshot) {
+    final snapshotID = snapshot.child('digitalId');
     return Member(
-      name: element['n'] as String,
-      dateSaved: element['ds'] as int,
-      dateBaptized: element['db'] as int,
-      congregation: element['c'] as String,
-      attributes: element['a'] as String,
-      digitalId: IdDigital.fromMap(element['digitalId']),
-      firebaseUserId: element['fu'] as String,
+      name: snapshot.child('n').value as String,
+      dateSaved: snapshot.child('ds').value as int,
+      dateBaptized: snapshot.child('db').value as int,
+      congregation: snapshot.child('c').value as String,
+      attributes: snapshot.child('a').value as String?,
+      digitalId:
+          snapshotID.value != null ? IdDigital.fromSnapshot(snapshotID) : null,
+      firebaseUserId: snapshot.child('fu').value as String?,
     );
   }
 

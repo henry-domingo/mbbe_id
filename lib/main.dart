@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mbbe_id/screen/add_member_screen.dart';
+import 'package:mbbe_id/screen/memberList_screen.dart';
 import 'package:mbbe_id/screen/scan_card_screen.dart';
 import 'package:mbbe_id/screen/write_card_screen.dart';
 
@@ -128,6 +129,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   );
                 },
                 child: const Text('Scan Card')),
+            TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const MemberListScreen()),
+                  );
+                },
+                child: const Text('List Members')),
             TextButton(
                 onPressed: () async {
                   await FirebaseAuth.instance.signOut();
