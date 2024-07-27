@@ -1,27 +1,21 @@
 class IdDigital {
-  final String name;
-  final String congregation;
-  final String image;
-
-  //TODO firebase ID
+  final String photo; // TODO link to Cloud store
+  final String signature; // TODO link to Cloud store
 
   const IdDigital({
-    required this.name,
-    required this.congregation,
-    required this.image,
+    required this.photo,
+    required this.signature,
   });
 
-  factory IdDigital.fromJson(Map<String, dynamic> json) {
+  factory IdDigital.fromMap(Map<String, dynamic> element) {
     return IdDigital(
-      name: json['n'] as String,
-      congregation: json['c'] as String,
-      image: json['i'] as String,
+      photo: element['p'] as String,
+      signature: element['s'] as String,
     );
   }
 
-  Map<String, dynamic> toJson() => {
-        'n': name,
-        'c': congregation,
-        'i': image,
+  Map<String, dynamic> toMap() => {
+        'p': photo,
+        's': signature,
       };
 }
